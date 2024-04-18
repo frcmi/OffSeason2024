@@ -45,4 +45,12 @@ public final class Constants {
     public static final double kMaxAmbiguity = 0.7;
     public static final double kMaxDistance = Units.feetToMeters(10);
   }
+
+  public static class TelemetryConstants {
+    public static final boolean kLoggingEnabled = true;
+    public static final boolean kDisableNetworkLog = false;
+    public static final boolean kDisableDataLog = false;
+    public static final String kTabPrefix = "Log";
+    public static final double kFMSCheckDelayMillis = 1000;
+  }
 }
