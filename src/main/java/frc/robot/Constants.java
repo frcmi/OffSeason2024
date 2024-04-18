@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -15,5 +19,18 @@ package frc.robot;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+  }
+  public static class AutoConstants {
+    public static final double maxSpeed = 2; //mps
+    public static final double maxAcceleration = 1; //mpsps
+    public static final double maxRotationalSpeed = 1; //rps
+    public static final double maxRotationalAcceleration = 0.5; //rpsps
+    public static final HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
+      new PIDConstants(1, 0, 0), //translation pid
+      new PIDConstants(1, 0, 0), //rotation pid
+      maxSpeed, //max speed of module
+      0, //TODO: change to drive base radius
+      new ReplanningConfig()
+    );
   }
 }
