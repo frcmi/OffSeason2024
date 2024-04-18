@@ -16,4 +16,12 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+
+  public static class LedConstants {
+    public static final int kLedPort = 0;//to be defined
+    public static final int kLedLength = 0; //to be defined 
+   
+  }
+
 }
+  
