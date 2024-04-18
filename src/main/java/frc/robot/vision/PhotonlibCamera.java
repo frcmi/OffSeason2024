@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -16,9 +19,36 @@ import frc.robot.Constants.VisionConstants;
 
 // thank you jack in the bot
 public class PhotonlibCamera implements Camera {
+    private static class PhotonlibSimulator implements Simulator {
+        public PhotonlibSimulator(String name, Transform3d robotOffset, AprilTagFieldLayout layout, Specification spec, PhotonCamera camera) {
+            var properties = new SimCameraProperties();
+            properties.setCalibration(spec.width, spec.height, spec.diagonalFOV);
+            properties.setCalibError(spec.averageError, spec.stdDevError);
+            properties.setFPS(spec.fps);
+            properties.setAvgLatencyMs(spec.averageLatency);
+            properties.setLatencyStdDevMs(spec.stdDevLatency);
+
+            cameraSim = new PhotonCameraSim(camera, properties);
+            visionSim = new VisionSystemSim(name);
+            visionSim.addCamera(cameraSim, robotOffset);
+        }
+
+        public void update(Pose2d pose) {
+            visionSim.update(pose);
+        }
+
+        public void reset(Pose2d pose) {
+            visionSim.resetRobotPose(pose);
+        }
+
+        private final PhotonCameraSim cameraSim;
+        private final VisionSystemSim visionSim;
+    }
+
     public PhotonlibCamera(String name, Transform3d robotOffset, AprilTagFieldLayout layout) {
         cameraName = name;
         cameraTransform = robotOffset;
+        fieldLayout = layout;
 
         camera = new PhotonCamera(cameraName);
         poseEstimator = new PhotonPoseEstimator(layout, VisionConstants.kPoseStrategy, camera, robotOffset);
@@ -96,11 +126,16 @@ public class PhotonlibCamera implements Camera {
         poseEstimator.setReferencePose(pose);
     }
 
+    public Simulator createSimulator(Specification spec) {
+        return new PhotonlibSimulator(cameraName, cameraTransform, fieldLayout, spec, camera);
+    }
+
     private final String cameraName;
     private final Transform3d cameraTransform;
 
     private final PhotonCamera camera;
     private final PhotonPoseEstimator poseEstimator;
+    private final AprilTagFieldLayout fieldLayout;
 
     private double lastTimestamp;
 }

@@ -6,9 +6,11 @@ package frc.robot;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.vision.Camera;
 import frc.robot.vision.CameraDescription;
 import frc.robot.vision.CameraDescription.CameraType;
 
@@ -28,6 +30,10 @@ public final class Constants {
   public static class VisionConstants {
     public static final CameraDescription[] kCameras = new CameraDescription[] {
       new CameraDescription("Arducam_OV9281_USB_Camera", CameraType.PHOTONVISION)
+    };
+
+    public static final Camera.Specification[] kCameraSpecs = new Camera.Specification[] {
+      new Camera.Specification(1280, 800, Rotation2d.fromDegrees(90), 0.44, 0.05, 30, 10, 30)
     };
 
     public static final Transform3d[] kCameraOffsets = new Transform3d[] {
