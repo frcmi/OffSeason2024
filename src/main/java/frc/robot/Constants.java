@@ -16,4 +16,11 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+  public class ClimberConstants {
+    public static final int kRightClimberId = 50;
+    public static final int kLeftClimberId = 51;
+
+    public static final double kClimberUp = 0.3;
+    public static final double kClimberDown = -0.7;
+  }
 }
