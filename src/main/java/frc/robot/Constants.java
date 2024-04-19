@@ -42,7 +42,7 @@ public final class Constants {
       0, //TODO: change to drive base radius
       new ReplanningConfig()
     );
-
+  }
   public static class VisionConstants {
     public static final CameraDescription[] kCameras = new CameraDescription[] {
       new CameraDescription("Arducam_OV9281_USB_Camera", CameraType.PHOTONVISION)
