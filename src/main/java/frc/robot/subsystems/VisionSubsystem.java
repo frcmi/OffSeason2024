@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import frc.robot.Robot;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.logging.BooleanLog;
+import frc.robot.logging.DoubleLog;
+import frc.robot.logging.StructLog;
 import frc.robot.vision.Camera;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -18,6 +20,11 @@ public class VisionSubsystem extends SubsystemBase {
         public Camera camera;
         public Camera.Result result;
         public Camera.Simulator sim;
+        public boolean isViable;
+
+        public StructLog<Pose2d> poseLog;
+        public DoubleLog ambiguityLog, maxDistanceLog, minDistanceLog;
+        public BooleanLog isViableLog;
     }
 
     private final CameraData[] cameras;
@@ -35,6 +42,13 @@ public class VisionSubsystem extends SubsystemBase {
                 data.camera = desc.createCamera(VisionConstants.kCameraOffsets[i], fieldLayout);
                 data.result = new Camera.Result();
                 data.sim = null;
+                data.isViable = false;
+
+                data.poseLog = new StructLog<>("Vision/Pose " + i, Pose2d.struct);
+                data.ambiguityLog = new DoubleLog("Vision/Ambiguity " + i);
+                data.maxDistanceLog = new DoubleLog("Vision/Max distance " + i);
+                data.minDistanceLog = new DoubleLog("Vision/Min distance " + i);
+                data.isViableLog = new BooleanLog("Vision/Is pose " + i + " current?");
 
                 if (Robot.isSimulation()) {
                     data.sim = data.camera.createSimulator(VisionConstants.kCameraSpecs[i]);
@@ -50,7 +64,18 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         for (var camera : cameras) {
-            camera.camera.updateResult(camera.result);
+            var result = camera.result;
+            camera.camera.updateResult(result);
+
+            camera.isViable = isResultViable(result);
+            camera.isViableLog.update(camera.isViable);
+
+            if (camera.isViable) {
+                camera.poseLog.update(result.pose);
+                camera.ambiguityLog.update(result.maxAmbiguity);
+                camera.maxDistanceLog.update(result.maxDistance);
+                camera.minDistanceLog.update(result.minDistance);
+            }
         }
     }
 
@@ -70,20 +95,28 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    public List<Camera.Result> getViableResults() {
-        var results = new ArrayList<Camera.Result>();
+    private boolean isResultViable(Camera.Result result) {
+        if (!result.isNew) {
+            return false;
+        }
 
-        for (var camera : cameras) {
-            var result = camera.result;
-            if (!result.isNew) {
+        if (result.maxDistance > VisionConstants.kMaxDistance || result.maxAmbiguity > VisionConstants.kMaxAmbiguity) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public HashMap<Integer, Camera.Result> getViableResults() {
+        var results = new HashMap<Integer, Camera.Result>();
+
+        for (int i = 0; i < cameras.length; i++) {
+            var camera = cameras[i];
+            if (!camera.isViable) {
                 continue;
             }
 
-            if (result.maxDistance > VisionConstants.kMaxDistance || result.maxAmbiguity > VisionConstants.kMaxAmbiguity) {
-                continue;
-            }
-
-            results.add(result);
+            results.put(i, camera.result);
         }
 
         return results;
