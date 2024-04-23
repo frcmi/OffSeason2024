@@ -4,6 +4,7 @@ import frc.robot.Constants.TelemetryConstants;
 
 public abstract class LogEntry<T> {
     private static double lastCheckedTimestamp = 0;
+    private static boolean timestampSet = false;
 
     private T lastItem;
 
@@ -11,9 +12,6 @@ public abstract class LogEntry<T> {
         if (!TelemetryConstants.kLoggingEnabled) {
             return;
         }
-
-        checkNetwork(false);
-        checkDatalog();
 
         lastItem = null;
     }
@@ -36,7 +34,7 @@ public abstract class LogEntry<T> {
         }
 
         if (!isNetworkEnabled()) {
-            checkNetwork(true);
+            checkNetwork();
         }
 
         if (data != null && data != lastItem) {
@@ -45,17 +43,19 @@ public abstract class LogEntry<T> {
         }
     }
 
-    private void checkNetwork(boolean checkTimestamp) {
+    private void checkNetwork() {
         if (TelemetryConstants.kDisableNetworkLog) {
             return;
         }
 
         long timestamp = System.currentTimeMillis();
-        if (checkTimestamp && timestamp - lastCheckedTimestamp < TelemetryConstants.kFMSCheckDelayMillis) {
+        if (timestampSet && timestamp - lastCheckedTimestamp < TelemetryConstants.kFMSCheckDelayMillis) {
             return;
         }
 
         lastCheckedTimestamp = timestamp;
+        timestampSet = true;
+
         enableNetwork();
     }
 
