@@ -91,18 +91,7 @@ public class Led extends SubsystemBase{
         startingPixel += speed; 
     }
 
-    public void rainbow(int speed, int width) {
-        int leadingPixel = 0; 
-        int startingPixel = leadingPixel - (width /2); 
-        Color startingColour = 
-
-        for (int i = startingPixel; i < width; i++) {
-            if (leadingPixel > m_LedBuffer.getLength()) {break;}
-
-        }
-
-        startingPixel += speed; 
-    }
+    
 }
 
 
