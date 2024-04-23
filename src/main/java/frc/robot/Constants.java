@@ -30,6 +30,15 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+  
+  public static class ClimberConstants {
+    public static final int kRightClimberId = 50;
+    public static final int kLeftClimberId = 51;
+
+    public static final double kClimberUp = 0.3;
+    public static final double kClimberDown = -0.7;
+  }
+  
   public static class AutoConstants {
     public static final double maxSpeed = 2; //mps
     public static final double maxAcceleration = 1; //mpsps
@@ -42,6 +51,7 @@ public final class Constants {
       0, //TODO: change to drive base radius
       new ReplanningConfig()
     );
+  }
 
   public static class VisionConstants {
     public static final CameraDescription[] kCameras = new CameraDescription[] {
