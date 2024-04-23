@@ -100,6 +100,41 @@ public class Led extends SubsystemBase{
     return setColourRGB(new Color(0, 255, 0));
     
   }   
+
+   // TODO: See if still needed, or remove if isn't.
+   private void rainbow() {
+
+    // For every pixel
+
+    int m_rainbowFirstPixelHue = 0;
+    for (var i = 0; i < m_LedBuffer.getLength(); i++) {
+
+      // Calculate the hue - hue is easier for rainbows because the color
+
+      // shape is a circle so only one value needs to precess
+
+      final var hue = (m_rainbowFirstPixelHue + (i * 180 / m_LedBuffer.getLength())) % 180;
+
+      // Set the value
+
+      m_LedBuffer.setHSV(i, hue, 255, 128);
+      
+
+    }
+  }
+
+  /**
+   * Example command factory method.
+   *
+   * @return a command
+   */
+  public Command runRainbow() {
+    return runOnce(
+        () -> {
+          rainbow();
+          m_Led.setData(m_LedBuffer);
+        });
+  }
 }
 
 
