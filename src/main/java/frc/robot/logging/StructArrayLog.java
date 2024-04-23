@@ -1,19 +1,22 @@
 package frc.robot.logging;
 
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.util.datalog.StructArrayLogEntry;
+import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.Constants.TelemetryConstants;
 
-public class DoubleLog extends LogEntry<Double> {
+public class StructArrayLog<T> extends LogEntry<T[]> {
     private final String logName;
+    private final Struct<T> metadata;
 
-    private DoubleLogEntry datalogEntry;
-    private DoublePublisher networkTablesEntry;
+    private StructArrayLogEntry<T> datalogEntry;
+    private StructArrayPublisher<T> networkTablesEntry;
 
-    public DoubleLog(String name) {
+    public StructArrayLog(String name, Struct<T> struct) {
         logName = TelemetryConstants.kTabPrefix + "/" + name;
+        metadata = struct;
 
         datalogEntry = null;
         networkTablesEntry = null;
@@ -22,7 +25,7 @@ public class DoubleLog extends LogEntry<Double> {
     @Override
     protected void enableDatalog() {
         try {
-            datalogEntry = new DoubleLogEntry(DataLogManager.getLog(), logName);
+            datalogEntry = StructArrayLogEntry.create(DataLogManager.getLog(), logName, metadata);
         } catch (Throwable error) {
             // nothing
         }
@@ -31,7 +34,7 @@ public class DoubleLog extends LogEntry<Double> {
     @Override
     protected void enableNetwork() {
         try {
-            networkTablesEntry = NetworkTableInstance.getDefault().getDoubleTopic(logName).publish();
+            networkTablesEntry = NetworkTableInstance.getDefault().getStructArrayTopic(logName, metadata).publish();
         } catch (Throwable error) {
             // nothing
         }
@@ -44,7 +47,7 @@ public class DoubleLog extends LogEntry<Double> {
     protected boolean isNetworkEnabled() { return networkTablesEntry != null; }
 
     @Override
-    protected void sendData(Double data) {
+    protected void sendData(T[] data) {
         if (datalogEntry != null) {
             datalogEntry.append(data);
         }
@@ -53,4 +56,5 @@ public class DoubleLog extends LogEntry<Double> {
             networkTablesEntry.set(data);
         }
     }
+
 }

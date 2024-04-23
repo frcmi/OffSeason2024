@@ -1,18 +1,18 @@
 package frc.robot.logging;
 
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.Constants.TelemetryConstants;
 
-public class DoubleLog extends LogEntry<Double> {
+public class StringLog extends LogEntry<String> {
     private final String logName;
 
-    private DoubleLogEntry datalogEntry;
-    private DoublePublisher networkTablesEntry;
+    private StringLogEntry datalogEntry;
+    private StringPublisher networkTablesEntry;
 
-    public DoubleLog(String name) {
+    public StringLog(String name) {
         logName = TelemetryConstants.kTabPrefix + "/" + name;
 
         datalogEntry = null;
@@ -22,7 +22,7 @@ public class DoubleLog extends LogEntry<Double> {
     @Override
     protected void enableDatalog() {
         try {
-            datalogEntry = new DoubleLogEntry(DataLogManager.getLog(), logName);
+            datalogEntry = new StringLogEntry(DataLogManager.getLog(), logName);
         } catch (Throwable error) {
             // nothing
         }
@@ -31,7 +31,7 @@ public class DoubleLog extends LogEntry<Double> {
     @Override
     protected void enableNetwork() {
         try {
-            networkTablesEntry = NetworkTableInstance.getDefault().getDoubleTopic(logName).publish();
+            networkTablesEntry = NetworkTableInstance.getDefault().getStringTopic(logName).publish();
         } catch (Throwable error) {
             // nothing
         }
@@ -44,7 +44,7 @@ public class DoubleLog extends LogEntry<Double> {
     protected boolean isNetworkEnabled() { return networkTablesEntry != null; }
 
     @Override
-    protected void sendData(Double data) {
+    protected void sendData(String data) {
         if (datalogEntry != null) {
             datalogEntry.append(data);
         }
@@ -53,4 +53,5 @@ public class DoubleLog extends LogEntry<Double> {
             networkTablesEntry.set(data);
         }
     }
+
 }

@@ -1,18 +1,18 @@
 package frc.robot.logging;
 
-import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.Constants.TelemetryConstants;
 
-public class DoubleLog extends LogEntry<Double> {
+public class BooleanLog extends LogEntry<Boolean> {
     private final String logName;
 
-    private DoubleLogEntry datalogEntry;
-    private DoublePublisher networkTablesEntry;
+    private BooleanLogEntry datalogEntry;
+    private BooleanPublisher networkTablesEntry;
 
-    public DoubleLog(String name) {
+    public BooleanLog(String name) {
         logName = TelemetryConstants.kTabPrefix + "/" + name;
 
         datalogEntry = null;
@@ -22,7 +22,7 @@ public class DoubleLog extends LogEntry<Double> {
     @Override
     protected void enableDatalog() {
         try {
-            datalogEntry = new DoubleLogEntry(DataLogManager.getLog(), logName);
+            datalogEntry = new BooleanLogEntry(DataLogManager.getLog(), logName);
         } catch (Throwable error) {
             // nothing
         }
@@ -31,7 +31,7 @@ public class DoubleLog extends LogEntry<Double> {
     @Override
     protected void enableNetwork() {
         try {
-            networkTablesEntry = NetworkTableInstance.getDefault().getDoubleTopic(logName).publish();
+            networkTablesEntry = NetworkTableInstance.getDefault().getBooleanTopic(logName).publish();
         } catch (Throwable error) {
             // nothing
         }
@@ -44,7 +44,7 @@ public class DoubleLog extends LogEntry<Double> {
     protected boolean isNetworkEnabled() { return networkTablesEntry != null; }
 
     @Override
-    protected void sendData(Double data) {
+    protected void sendData(Boolean data) {
         if (datalogEntry != null) {
             datalogEntry.append(data);
         }
@@ -53,4 +53,5 @@ public class DoubleLog extends LogEntry<Double> {
             networkTablesEntry.set(data);
         }
     }
+
 }
