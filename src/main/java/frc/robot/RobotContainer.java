@@ -143,7 +143,7 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    NamedCommands.registerCommand("exampleCommand", new ExampleCommand(m_exampleSubsystem));
+    NamedCommands.registerCommand("exampleCommand", new ExampleCommand(exampleSubsystem));
   }
 
   /**
