@@ -51,7 +51,7 @@ public class RobotContainer {
       SwerveConstants.kFrontLeft, SwerveConstants.kFrontRight,
       SwerveConstants.kBackLeft, SwerveConstants.kBackRight);
 
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
+  public static final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverController = new CommandXboxController(
