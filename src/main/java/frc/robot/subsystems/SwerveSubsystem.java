@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.SwerveConstants;
 
 /**
@@ -55,5 +56,16 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
         });
 
         simNotifier.startPeriodic(SwerveConstants.kSimLoopPeriod);
+    }
+
+    @Override
+    public void periodic() {
+        var vision = RobotContainer.visionSubsystem;
+        var results = vision.getViableResults();
+    
+        for (int camera : results.keySet()) {
+            var result = results.get(camera);
+            addVisionMeasurement(result.pose, result.timestamp);
+        }
     }
 }

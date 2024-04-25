@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.util.HashMap;
 
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.logging.BooleanLog;
 import frc.robot.logging.DoubleLog;
@@ -12,7 +13,6 @@ import frc.robot.vision.Camera;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -81,8 +81,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // todo: update with swerve
-        var pose = new Pose2d(0, 0, new Rotation2d(0));
+        var swerve = RobotContainer.swerveSubsystem;
+        var pose = swerve.getState().Pose;
 
         for (var camera : cameras) {
             camera.sim.update(pose);
