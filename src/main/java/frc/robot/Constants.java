@@ -16,4 +16,40 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
+  public final class variableShooterConstants {
+    public static final double kMaxShooterPositionVolts = 0;
+    public static final int kVariableShooterMotorId = 0;
+    public static final int kVariableShooterEncoderId = 0;
+    public static final double kTorqueShooterConstant = 0;
+
+    // PID stuff
+    public static final double kP = 0;
+    public static final double kI = 0;
+    public static final double kD = 0;
+
+    // feed forward stuff
+    public static final double kS = 0;
+    public static final double kG = 0;
+    public static final double kV = 0;
+    public static final double kA = 0;
+
+    // motion stuff
+    public static final double kMaxLiftVelocity = 0;
+    public static final double kMaxLiftAcceleration = 0;
+    public static final double kDefaultSpeed = 0;
+
+    // angle stuff
+    public static final double kMaxPosition = 0;
+    public static final double kMinPosition = 0;
+    public static final double kShootAngle = 0;
+    public static final double kGravityLimit = 0;
+
+    public static final double kShooterEncoderOffset = 0;
+
+    // raising and lowering stuff
+
+    public static final double kRaiseShooterVolts = 0;
+    public static final double klowerShooterVolts = 0;
+    public static final double kShooterCurrentLimit = 0;
+  }
 }
