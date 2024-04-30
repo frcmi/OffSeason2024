@@ -11,7 +11,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
@@ -47,7 +47,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
-  public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem(SwerveConstants.kDrivetrainConstants,
+  public static final CommandSwerveDrivetrain CommandSwerveDrivetrain = new CommandSwerveDrivetrain(SwerveConstants.kDrivetrainConstants,
       SwerveConstants.kFrontLeft, SwerveConstants.kFrontRight,
       SwerveConstants.kBackLeft, SwerveConstants.kBackRight);
 
@@ -91,8 +91,8 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    swerveSubsystem.setDefaultCommand( // Drivetrain will execute this command periodically
-        swerveSubsystem.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive
+    CommandSwerveDrivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+        CommandSwerveDrivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive
                                                                                                           // forward
                                                                                                           // with
             // negative Y (forward)
@@ -101,16 +101,16 @@ public class RobotContainer {
                                                                                   // negative X (left)
         ));
 
-    driverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-    driverController.b().whileTrue(swerveSubsystem
+    driverController.a().whileTrue(CommandSwerveDrivetrain.applyRequest(() -> brake));
+    driverController.b().whileTrue(CommandSwerveDrivetrain
         .applyRequest(() -> point
             .withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
     // reset the field-centric heading on left bumper press
-    driverController.leftBumper().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.seedFieldRelative()));
+    driverController.leftBumper().onTrue(CommandSwerveDrivetrain.runOnce(() -> CommandSwerveDrivetrain.seedFieldRelative()));
 
     if (Robot.isSimulation()) {
-      swerveSubsystem.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+      CommandSwerveDrivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(exampleSubsystem::exampleCondition)
