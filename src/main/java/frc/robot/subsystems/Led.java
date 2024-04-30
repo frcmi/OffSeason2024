@@ -3,6 +3,8 @@ import org.opencv.objdetect.BaseCascadeClassifier;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,6 +24,7 @@ public class Led extends SubsystemBase{
         m_Led.setLength(m_LedBuffer.getLength());
         m_Led.setData(m_LedBuffer);
         m_Led.start();
+      
     }
 
     //changes colour of all Led's to a certan RGB
@@ -135,6 +138,10 @@ public class Led extends SubsystemBase{
           m_Led.setData(m_LedBuffer);
         });
   }
+
+  //smart dashboard 
+  private final SendableChooser<String> chooser = new SendableChooser<>();
+
 }
 
 

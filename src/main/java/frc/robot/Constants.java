@@ -22,6 +22,5 @@ public final class Constants {
     public static final int kLedLength = 0; //to be defined 
    
   }
-
 }
   
