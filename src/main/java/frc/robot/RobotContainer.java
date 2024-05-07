@@ -11,6 +11,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -52,6 +53,8 @@ public class RobotContainer {
       SwerveConstants.kBackLeft, SwerveConstants.kBackRight);
 
   public static final VisionSubsystem visionSubsystem = new VisionSubsystem();
+
+  public static final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverController = new CommandXboxController(
