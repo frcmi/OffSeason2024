@@ -11,7 +11,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
@@ -47,7 +47,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
-  public static final CommandSwerveDrivetrain CommandSwerveDrivetrain = new CommandSwerveDrivetrain(SwerveConstants.kDrivetrainConstants,
+  public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem(SwerveConstants.kDrivetrainConstants,
       SwerveConstants.kFrontLeft, SwerveConstants.kFrontRight,
       SwerveConstants.kBackLeft, SwerveConstants.kBackRight);
 
@@ -91,26 +91,26 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    CommandSwerveDrivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        CommandSwerveDrivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive
-                                                                                                          // forward
-                                                                                                          // with
+    swerveSubsystem.setDefaultCommand( // Drivetrain will execute this command periodically
+        swerveSubsystem.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive
+                                                                                                        // forward
+                                                                                                        // with
             // negative Y (forward)
             .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
             .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with
-                                                                                  // negative X (left)
+                                                                                // negative X (left)
         ));
 
-    driverController.a().whileTrue(CommandSwerveDrivetrain.applyRequest(() -> brake));
-    driverController.b().whileTrue(CommandSwerveDrivetrain
+    driverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
+    driverController.b().whileTrue(swerveSubsystem
         .applyRequest(() -> point
             .withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
     // reset the field-centric heading on left bumper press
-    driverController.leftBumper().onTrue(CommandSwerveDrivetrain.runOnce(() -> CommandSwerveDrivetrain.seedFieldRelative()));
+    driverController.leftBumper().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.seedFieldRelative()));
 
     if (Robot.isSimulation()) {
-      CommandSwerveDrivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+      swerveSubsystem.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     new Trigger(exampleSubsystem::exampleCondition)
@@ -123,22 +123,21 @@ public class RobotContainer {
   }
 
   private void configureAutoBuilder() {
-    //TODO: all this needs to be filled in with methods from DT subsystem...
+    // TODO: all this needs to be filled in with methods from DT subsystem...
     AutoBuilder.configureHolonomic(
-      null, 
-      null, 
-      null, 
-      null, 
-      Constants.AutoConstants.pathFollowerConfig, 
-      () -> {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isPresent())
-          return alliance.get() == DriverStation.Alliance.Red;
-        System.out.println("Could not obtain allaince from driverstation!");
-        return false;
-      },
-      null
-    );
+        null,
+        null,
+        null,
+        null,
+        Constants.AutoConstants.pathFollowerConfig,
+        () -> {
+          Optional<Alliance> alliance = DriverStation.getAlliance();
+          if (alliance.isPresent())
+            return alliance.get() == DriverStation.Alliance.Red;
+          System.out.println("Could not obtain allaince from driverstation!");
+          return false;
+        },
+        null);
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
