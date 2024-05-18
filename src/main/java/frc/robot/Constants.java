@@ -68,7 +68,7 @@ public final class Constants {
     // angle stuff
     public static final double kMaxPosition = 0;
     public static final double kMinPosition = 0;
-    public static final double kShootAngle = 0;
+    public static final double kMinVelocityAngle = 0;
     public static final double kGravityLimit = 0;
 
     public static final double kShooterEncoderOffset = 0;
