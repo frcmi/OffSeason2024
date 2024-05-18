@@ -18,6 +18,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -42,42 +43,45 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
-  
+
   public final class ShooterConstants {
     public static final double kMaxShooterPositionVolts = 0;
     public static final int kVariableShooterMotorId = 0;
     public static final int kVariableShooterEncoderId = 0;
     public static final double kTorqueShooterConstant = 0;
 
-    // PID stuff
+    // PID constants
     public static final double kP = 0;
     public static final double kI = 0;
     public static final double kD = 0;
 
-    // feed forward stuff
+    // feed forward constants
     public static final double kS = 0;
     public static final double kG = 0;
     public static final double kV = 0;
     public static final double kA = 0;
 
-    // motion stuff
+    // motion constants
     public static final double kMaxLiftVelocity = 0;
     public static final double kMaxLiftAcceleration = 0;
     public static final double kDefaultSpeed = 0;
 
-    // angle stuff
+    // angle constants
     public static final double kMaxPosition = 0;
     public static final double kMinPosition = 0;
     public static final double kMinVelocityAngle = 0;
     public static final double kGravityLimit = 0;
 
     public static final double kShooterEncoderOffset = 0;
-
-    // raising and lowering stuff
-
-    public static final double kRaiseShooterVolts = 0;
-    public static final double klowerShooterVolts = 0;
     public static final double kShooterCurrentLimit = 0;
+
+    // auto align constants
+    public static final Transform3d kRobotToPivot = new Transform3d();
+    public static final Pose3d kRedSpeaker = new Pose3d();
+    public static final Pose3d kBlueSpeaker = new Pose3d();
+
+    // IMPORTANT FOR AUTO ALIGN
+    public static final double kInitialNoteVelocity = 0;
   }
 
   public static class SwerveConstants {

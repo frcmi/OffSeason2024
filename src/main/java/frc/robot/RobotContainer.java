@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -123,6 +124,8 @@ public class RobotContainer {
     // pressed,
     // cancelling on release.
     driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
+
+    driverController.leftTrigger().whileTrue(new AutoAlignCommand(shooterSubsystem, swerveSubsystem));
   }
 
   private void configureAutoBuilder() {
@@ -134,10 +137,11 @@ public class RobotContainer {
       null, 
       Constants.AutoConstants.pathFollowerConfig, 
       () -> {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
+        var alliance = DriverStation.getAlliance();
         if (alliance.isPresent())
           return alliance.get() == DriverStation.Alliance.Red;
-        System.out.println("Could not obtain allaince from driverstation!");
+
+        System.out.println("Could not obtain alliance from Driver Station!");
         return false;
       },
       null
@@ -146,7 +150,11 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    NamedCommands.registerCommand("exampleCommand", new ExampleCommand(exampleSubsystem));
+    registerCommands();
+  }
+
+  private void registerCommands() {
+    NamedCommands.registerCommand("auto-align", new AutoAlignCommand(shooterSubsystem, swerveSubsystem));
   }
 
   /**
