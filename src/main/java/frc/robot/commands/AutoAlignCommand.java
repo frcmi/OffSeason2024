@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -125,8 +126,10 @@ public class AutoAlignCommand extends Command {
 
         var result = computeShooterAngle(shooterToSpeaker, ShooterConstants.kInitialNoteVelocity);
         if (result.isPresent()) {
-            var shooterAngle = result.get().shooterAngle;
-            shooter.setGoal(shooterAngle.getRadians());
+            double shooterAngle = result.get().shooterAngle.getRadians();
+            shooterAngle = MathUtil.clamp(shooterAngle, ShooterConstants.kMinPosition, ShooterConstants.kMaxPosition);
+            
+            shooter.setGoal(shooterAngle);
         }
     }
 
