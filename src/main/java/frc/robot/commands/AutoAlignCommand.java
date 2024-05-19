@@ -1,26 +1,42 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-
+import frc.robot.RobotContainer;
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import java.util.Optional;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+
 public class AutoAlignCommand extends Command {
     public AutoAlignCommand(ShooterSubsystem shooterSubsystem, SwerveSubsystem swerveSubsystem) {
         shooter = shooterSubsystem;
         swerve = swerveSubsystem;
+
+        var pidConstants = AutoConstants.pathFollowerConfig.rotationConstants;
+        pidController = new PIDController(pidConstants.kP, pidConstants.kI, pidConstants.kD);
+
+        swerveRequest = new SwerveRequest.FieldCentric()
+                .withRotationalDeadband(RobotContainer.kMaxAngularVelocity * 0.1)
+                .withDriveRequestType(DriveRequestType.Velocity);
+
+        addRequirements(swerveSubsystem);
     }
 
     private ShooterSubsystem shooter;
     private SwerveSubsystem swerve;
+    private PIDController pidController;
+    private SwerveRequest.FieldCentric swerveRequest;
 
     public static class AutoAlignResults {
         public Rotation2d shooterAngle;
@@ -120,9 +136,22 @@ public class AutoAlignCommand extends Command {
 
         var shooterToSpeaker = speakerPose.minus(shooterPose).getTranslation();
         var targetRotation = new Rotation2d(shooterToSpeaker.getX(), shooterToSpeaker.getY());
-        var deltaRotation = targetRotation.minus(shooterPose.getRotation().toRotation2d());
+        var currentRotation = shooterPose.getRotation().toRotation2d();
 
-        // todo: set swerve goal
+        double pidOutput = pidController.calculate(currentRotation.getRadians(), targetRotation.getRadians());
+        double angularVelocity = pidOutput * AutoConstants.kMaxAngularVelocity;
+
+        swerve.applyRequest(() -> {
+            if (DriverStation.isTeleopEnabled()) {
+                // see RobotContainer
+                var controller = RobotContainer.driverController;
+                swerveRequest.VelocityX = -controller.getLeftY() * RobotContainer.kMaxVelocity;
+                swerveRequest.VelocityY = -controller.getLeftX() * RobotContainer.kMaxVelocity;
+            }
+
+            swerveRequest.RotationalRate = angularVelocity;
+            return swerveRequest;
+        });
 
         var result = computeShooterAngle(shooterToSpeaker, ShooterConstants.kInitialNoteVelocity);
         if (result.isPresent()) {

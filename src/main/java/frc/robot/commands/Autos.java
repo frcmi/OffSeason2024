@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.Constants;
+import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.ExampleSubsystem;
 
 import java.util.ArrayList;
@@ -29,13 +30,11 @@ public final class Autos {
 
   public static Command driveToPosition(Pose2d target) {
     return AutoBuilder.pathfindToPose(
-      target,
-      new PathConstraints(Constants.AutoConstants.maxSpeed, 
-        Constants.AutoConstants.maxAcceleration, 
-        Constants.AutoConstants.maxRotationalSpeed, 
-        Constants.AutoConstants.maxRotationalAcceleration
-      )
-    );
+        target,
+        new PathConstraints(AutoConstants.kMaxVelocity,
+            AutoConstants.kMaxAcceleration,
+            AutoConstants.kMaxAngularVelocity,
+            AutoConstants.kMaxAngularAcceleration));
   }
 
   private Autos() {

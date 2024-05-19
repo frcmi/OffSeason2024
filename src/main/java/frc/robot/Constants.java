@@ -223,14 +223,14 @@ public final class Constants {
   }
 
   public static class AutoConstants {
-    public static final double maxSpeed = 2; // mps
-    public static final double maxAcceleration = 1; // mpsps
-    public static final double maxRotationalSpeed = 1; // rps
-    public static final double maxRotationalAcceleration = 0.5; // rpsps
+    public static final double kMaxVelocity = 2; // m/s
+    public static final double kMaxAcceleration = 1; // m/s^2
+    public static final double kMaxAngularVelocity = 1; // rad/s
+    public static final double kMaxAngularAcceleration = 0.5; // rad/s^2
     public static final HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
         new PIDConstants(1, 0, 0), // translation pid
         new PIDConstants(1, 0, 0), // rotation pid
-        maxSpeed, // max speed of module
+        kMaxVelocity, // max speed of module
         0, // TODO: change to drive base radius
         new ReplanningConfig());
   }
