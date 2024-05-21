@@ -96,10 +96,9 @@ public class AutoAlignCommand extends Command {
 
         // because we know the sqrt term is 0, we can just ignore it. its faster :)
         double t = (initialVelocity * (Math.sin(pitch) - Math.cos(pitch))) / g;
-
-        double yaw = Math.atan2(shooterToTarget.getY(), shooterToTarget.getX());
-        double cosYaw = Math.cos(yaw);
-        double sinYaw = Math.sin(yaw);
+        
+        double cosYaw = shooterToTarget.getX() / deltaX;
+        double sinYaw = shooterToTarget.getY() / deltaX;
 
         // i wish i could use energy conservation but that only deals with magnitudes
         // velocityDirection will always have a length of 1
