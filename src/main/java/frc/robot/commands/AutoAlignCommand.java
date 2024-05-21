@@ -139,7 +139,7 @@ public class AutoAlignCommand extends Command {
         var currentRotation = shooterPose.getRotation().toRotation2d();
 
         double pidOutput = pidController.calculate(currentRotation.getRadians(), targetRotation.getRadians());
-        double angularVelocity = pidOutput * AutoConstants.kMaxAngularVelocity;
+        double angularVelocity = MathUtil.clamp(pidOutput, -1, 1) * AutoConstants.kMaxAngularVelocity;
 
         swerve.applyRequest(() -> {
             if (DriverStation.isTeleopEnabled()) {
