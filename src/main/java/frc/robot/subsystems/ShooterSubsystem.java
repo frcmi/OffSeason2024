@@ -7,11 +7,9 @@ import frc.robot.Constants.ShooterConstants;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 
-import java.util.function.DoubleSupplier;
-
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -54,49 +52,25 @@ public class ShooterSubsystem extends SubsystemBase {
                 * (goalAngle < ShooterConstants.kGravityLimit ? 0 : ShooterConstants.kTorqueShooterConstant);
 
         if (angle < ShooterConstants.kMinPosition)
-            outputVolts = Math.max(kg, Math.min(2, outputVolts));
+            outputVolts = MathUtil.clamp(outputVolts, -kg, 2);
         if (angle > ShooterConstants.kMaxPosition)
-            outputVolts = Math.max(-2, Math.min(kg, outputVolts));
+            outputVolts = MathUtil.clamp(outputVolts, -2, kg);
 
-        outputVolts = Math.max(-ShooterConstants.kMaxShooterPositionVolts,
-                Math.min(ShooterConstants.kMaxShooterPositionVolts, outputVolts));
+        outputVolts = MathUtil.clamp(outputVolts, -ShooterConstants.kMaxShooterPositionVolts,
+                ShooterConstants.kMaxShooterPositionVolts);
 
         shooterMotor.setVoltage(outputVolts);
     }
 
     public Command moveTo(double goalAngle) {
-        return run(
-                () -> setGoal(goalAngle));
+        return run(() -> setGoal(goalAngle));
     }
 
-    public Command liftShooter() {
-        double raiseVolts = ShooterConstants.kRaiseShooterVolts
-                + Math.cos(getAngle()) * ShooterConstants.kTorqueShooterConstant;
-        final double outputVolts = raiseVolts;
-        raiseVolts = Math.max(-ShooterConstants.kMaxShooterPositionVolts,
-                Math.min(ShooterConstants.kMaxShooterPositionVolts, raiseVolts));
-
-        return new PrintCommand("lifting Shooter")
-                .andThen(run(
-                        () -> shooterMotor.setVoltage(ShooterConstants.kRaiseShooterVolts
-                                + Math.cos(getAngle()) * ShooterConstants.kTorqueShooterConstant)))
-                .until(
-                        () -> (Math.toDegrees(getAngle()) > 0))
-                .andThen(runOnce(
-                        () -> System.out.println("At " + Math.toDegrees(getAngle()) + ", stopping now")))
-                .andThen(stop());
-    }
-
-    public Command lowerShooter() {
-        return run(
-                () -> shooterMotor.setVoltage(ShooterConstants.klowerShooterVolts)).until(
-                        () -> shooterMotor.getOutputCurrent() > ShooterConstants.kShooterCurrentLimit);
+    public void doStop() {
+        shooterMotor.set(0);
     }
 
     public Command stop() {
-        return run(
-                () -> {
-                    shooterMotor.set(0);
-                }).withName("stop");
+        return run(this::doStop).withName("stop");
     }
 }

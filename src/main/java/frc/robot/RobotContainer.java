@@ -6,8 +6,10 @@ package frc.robot;
 
 import java.util.Optional;
 
+import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -57,13 +59,13 @@ public class RobotContainer {
   public static final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController driverController = new CommandXboxController(
+  public static final CommandXboxController driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
-  private double MaxSpeed = SwerveConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
-  private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+  public static final double kMaxVelocity = SwerveConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
+  public static final double kMaxAngularVelocity = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+      .withDeadband(kMaxVelocity * 0.1).withRotationalDeadband(kMaxAngularVelocity * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
                                                                // driving in open loop
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -93,15 +95,19 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    // -y on the joystick is up
+    // and then we want +x (towards the other side of the field) to be up
 
-    swerveSubsystem.setDefaultCommand( // Drivetrain will execute this command periodically
-        swerveSubsystem.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive
-                                                                                                          // forward
-                                                                                                          // with
-            // negative Y (forward)
-            .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with
-                                                                                  // negative X (left)
+    // similarly, -x on the joystick is left
+    // and we want +y (the left side of the field) to be to the left
+
+    // positive angular velocity is counterclockwise looking down on the field
+    // and we want the robot to rotate counterclockwise when we flick the right joystick left
+
+    swerveSubsystem.setDefaultCommand(
+        swerveSubsystem.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * kMaxVelocity)
+            .withVelocityY(-driverController.getLeftX() * kMaxVelocity)
+            .withRotationalRate(-driverController.getRightX() * kMaxAngularVelocity)
         ));
 
     driverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
@@ -123,30 +129,36 @@ public class RobotContainer {
     // pressed,
     // cancelling on release.
     driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
+
+    driverController.leftTrigger().whileTrue(new AutoAlignCommand(shooterSubsystem, swerveSubsystem));
   }
 
   private void configureAutoBuilder() {
-    //TODO: all this needs to be filled in with methods from DT subsystem...
+    // TODO: all this needs to be filled in with methods from DT subsystem...
     AutoBuilder.configureHolonomic(
-      null, 
-      null, 
-      null, 
-      null, 
-      Constants.AutoConstants.pathFollowerConfig, 
-      () -> {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isPresent())
-          return alliance.get() == DriverStation.Alliance.Red;
-        System.out.println("Could not obtain allaince from driverstation!");
-        return false;
-      },
-      null
-    );
+        () -> swerveSubsystem.getState().Pose,
+        null,
+        () -> swerveSubsystem.getState().speeds,
+        null,
+        AutoConstants.pathFollowerConfig,
+        () -> {
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent())
+            return alliance.get() == DriverStation.Alliance.Red;
+
+          System.out.println("Could not obtain alliance from Driver Station!");
+          return false;
+        },
+        null);
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    NamedCommands.registerCommand("exampleCommand", new ExampleCommand(exampleSubsystem));
+    registerCommands();
+  }
+
+  private void registerCommands() {
+    NamedCommands.registerCommand("auto-align", new AutoAlignCommand(shooterSubsystem, swerveSubsystem));
   }
 
   /**
