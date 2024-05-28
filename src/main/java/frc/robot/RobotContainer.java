@@ -9,8 +9,6 @@ import java.util.Optional;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -45,7 +43,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   public static SendableChooser<Command> autoChooser;
   // The robot's subsystems and commands are defined here...
-  public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
   public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem(SwerveConstants.kDrivetrainConstants,
       SwerveConstants.kFrontLeft, SwerveConstants.kFrontRight,
@@ -64,7 +61,7 @@ public class RobotContainer {
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
                                                                // driving in open loop
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -101,10 +98,11 @@ public class RobotContainer {
                                                                                 // negative X (left)
         ));
 
-    driverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-    driverController.b().whileTrue(swerveSubsystem
-        .applyRequest(() -> point
-            .withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
+    driverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake)); // Locks wheels in place (X formation for secured stillness) rather than 0 speed
+    
+    // driverController.b().whileTrue(swerveSubsystem
+    //     .applyRequest(() -> point
+    //         .withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
     // reset the field-centric heading on left bumper press
     driverController.leftBumper().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.seedFieldRelative()));
@@ -112,14 +110,6 @@ public class RobotContainer {
     if (Robot.isSimulation()) {
       swerveSubsystem.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(exampleSubsystem));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
-    driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
   }
 
   private void configureAutoBuilder() {
@@ -142,7 +132,6 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    NamedCommands.registerCommand("exampleCommand", new ExampleCommand(exampleSubsystem));
   }
 
   /**
