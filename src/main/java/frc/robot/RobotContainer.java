@@ -102,13 +102,13 @@ public class RobotContainer {
     // and we want +y (the left side of the field) to be to the left
 
     // positive angular velocity is counterclockwise looking down on the field
-    // and we want the robot to rotate counterclockwise when we flick the right joystick left
+    // and we want the robot to rotate counterclockwise when we flick the right
+    // joystick left
 
     swerveSubsystem.setDefaultCommand(
         swerveSubsystem.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * kMaxVelocity)
             .withVelocityY(-driverController.getLeftX() * kMaxVelocity)
-            .withRotationalRate(-driverController.getRightX() * kMaxAngularVelocity)
-        ));
+            .withRotationalRate(-driverController.getRightX() * kMaxAngularVelocity)));
 
     driverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
     driverController.b().whileTrue(swerveSubsystem
@@ -137,9 +137,10 @@ public class RobotContainer {
     // TODO: all this needs to be filled in with methods from DT subsystem...
     AutoBuilder.configureHolonomic(
         () -> swerveSubsystem.getState().Pose,
-        null,
+        pose -> swerveSubsystem.seedFieldRelative(pose),
         () -> swerveSubsystem.getState().speeds,
-        null,
+        speeds -> swerveSubsystem.setControl(new SwerveRequest.RobotCentric().withVelocityX(speeds.vxMetersPerSecond)
+            .withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond)),
         AutoConstants.pathFollowerConfig,
         () -> {
           var alliance = DriverStation.getAlliance();
@@ -149,7 +150,7 @@ public class RobotContainer {
           System.out.println("Could not obtain alliance from Driver Station!");
           return false;
         },
-        null);
+        swerveSubsystem);
 
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("Auto Chooser", autoChooser);

@@ -14,6 +14,9 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+/*
+ * Handles shooter arm motion and note firing
+ */
 public class ShooterSubsystem extends SubsystemBase {
     public final CANSparkMax shooterMotor = new CANSparkMax(ShooterConstants.kVariableShooterMotorId,
             MotorType.kBrushless);
@@ -32,45 +35,57 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterMotor.setInverted(false);
 
-        setDefaultCommand(stop());
+        setDefaultCommand(stopArm());
     }
 
+    /*
+     * Retrieve the angle at which the shooter is currently aiming
+     */
     public double getAngle() {
         return -((shooterEncoder.getAbsolutePosition()) * 2 * Math.PI
                 + Math.toRadians(ShooterConstants.kShooterEncoderOffset));
     }
 
-    public void setGoal(double goalAngle) {
+    /*
+     * Set and update the angle setpoint of the arm motor - must be called
+     * periodically
+     */
+    public void setArmGoal(double goalAngle) {
         double angle = getAngle();
         double kg = feedforward.calculate(angle, 0);
 
-        goalAngle = Math.toRadians(goalAngle);
-
-        double pidOutput = pidController.calculate(angle, goalAngle);
+        double goalRadians = Math.toRadians(goalAngle);
+        double pidOutput = pidController.calculate(angle, goalRadians);
 
         double outputVolts = pidOutput + Math.cos(angle)
-                * (goalAngle < ShooterConstants.kGravityLimit ? 0 : ShooterConstants.kTorqueShooterConstant);
+                * (goalRadians < ShooterConstants.kGravityLimit ? 0 : ShooterConstants.kTorqueShooterConstant);
 
+        // clamp by feedforward
         if (angle < ShooterConstants.kMinPosition)
             outputVolts = MathUtil.clamp(outputVolts, -kg, 2);
         if (angle > ShooterConstants.kMaxPosition)
             outputVolts = MathUtil.clamp(outputVolts, -2, kg);
 
+        // clamp by global max voltage
         outputVolts = MathUtil.clamp(outputVolts, -ShooterConstants.kMaxShooterPositionVolts,
                 ShooterConstants.kMaxShooterPositionVolts);
 
+        // set setpoint
         shooterMotor.setVoltage(outputVolts);
     }
 
-    public Command moveTo(double goalAngle) {
-        return run(() -> setGoal(goalAngle));
+    /*
+     * Arm move command - this is for general robot control
+     */
+    public Command moveArmTo(double goalAngle) {
+        return run(() -> setArmGoal(goalAngle)).withName("moveArmTo").finallyDo(this::doStop);
     }
 
     public void doStop() {
         shooterMotor.set(0);
     }
 
-    public Command stop() {
-        return run(this::doStop).withName("stop");
+    public Command stopArm() {
+        return run(this::doStop).withName("stopArm");
     }
 }

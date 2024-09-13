@@ -18,8 +18,8 @@ import frc.robot.RobotContainer;
 import frc.robot.Constants.SwerveConstants;
 
 /**
- * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
- * so it can be used in command-based projects easily.
+ * Swerve drivetrain using CTRE's swerve framework
+ * Uses all Talon FX motor controllers
  */
 public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
     private Notifier simNotifier = null;
@@ -60,11 +60,14 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic() {
+        // read current results from vision
         var vision = RobotContainer.visionSubsystem;
         var results = vision.getViableResults();
     
         for (int camera : results.keySet()) {
             var result = results.get(camera);
+
+            // send measurement to CTRE swerve
             addVisionMeasurement(result.pose, result.timestamp);
         }
     }

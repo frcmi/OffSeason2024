@@ -15,13 +15,20 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/*
+ * Uses camera video input to judge position from April Tags
+ */
 public class VisionSubsystem extends SubsystemBase {
+    /*
+     * All data related to a camera on the bot
+     */
     private static class CameraData {
-        public Camera camera;
-        public Camera.Result result;
-        public Camera.Simulator sim;
-        public boolean isViable;
+        public Camera camera; // actual camera handle
+        public Camera.Result result; // retrieved vision data
+        public Camera.Simulator sim; // simulation handle
+        public boolean isViable; // is this result good? is it stale?
 
+        // all publishers for telemetry
         public StructLog<Pose2d> poseLog;
         public DoubleLog ambiguityLog, maxDistanceLog, minDistanceLog;
         public BooleanLog isViableLog;
@@ -33,17 +40,20 @@ public class VisionSubsystem extends SubsystemBase {
         cameras = new CameraData[VisionConstants.kCameras.length];
 
         try {
+            // read field layout from embedded frc data
             var fieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
 
             for (int i = 0; i < cameras.length; i++) {
                 var desc = VisionConstants.kCameras[i];
 
+                // initialize camera
                 var data = new CameraData();
                 data.camera = desc.createCamera(VisionConstants.kCameraOffsets[i], fieldLayout);
                 data.result = new Camera.Result();
                 data.sim = null;
                 data.isViable = false;
 
+                // set up networktables logs
                 data.poseLog = new StructLog<>("Vision/Pose " + i, Pose2d.struct);
                 data.ambiguityLog = new DoubleLog("Vision/Ambiguity " + i);
                 data.maxDistanceLog = new DoubleLog("Vision/Max distance " + i);
@@ -51,6 +61,7 @@ public class VisionSubsystem extends SubsystemBase {
                 data.isViableLog = new BooleanLog("Vision/Is pose " + i + " current?");
 
                 if (Robot.isSimulation()) {
+                    // create sim handler
                     data.sim = data.camera.createSimulator(VisionConstants.kCameraSpecs[i]);
                 }
 
@@ -64,12 +75,15 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         for (var camera : cameras) {
+            // read data from camera (pass-by-reference)
             var result = camera.result;
             camera.camera.updateResult(result);
 
+            // validate result data
             camera.isViable = isResultViable(result);
             camera.isViableLog.update(camera.isViable);
 
+            // if viable, log to networktables
             if (camera.isViable) {
                 camera.poseLog.update(result.pose);
                 camera.ambiguityLog.update(result.maxAmbiguity);
@@ -84,6 +98,7 @@ public class VisionSubsystem extends SubsystemBase {
         var swerve = RobotContainer.swerveSubsystem;
         var pose = swerve.getState().Pose;
 
+        // generate images to feed to camera sim
         for (var camera : cameras) {
             camera.sim.update(pose);
         }

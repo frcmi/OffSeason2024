@@ -82,6 +82,7 @@ public class AutoAlignCommand extends Command {
         // sqrt(2)/2 * x = sin(theta - pi/4)
         // asin(sqrt(2)/2 * x) = theta - pi/4
         // theta = asin(sqrt(2)/2 * x) + pi/4
+
         // THEREFORE theta >= asin(sqrt(2)/2 * (1/v_not * sqrt(2 * g * (delta_y -
         // delta_x)))) + pi/4
         // theta >= asin(1/v_not * sqrt(g * (delta_y - delta_x))) + pi/4
@@ -89,7 +90,7 @@ public class AutoAlignCommand extends Command {
         double deltaX = shooterToTarget.toTranslation2d().getNorm();
         double deltaY = shooterToTarget.getZ();
         double g = 9.81;
-
+        
         double pitch = Math.asin(Math.sqrt(g * (deltaY - deltaX)) / initialVelocity) + Math.PI / 4;
         double cosPitch = Math.cos(pitch);
         double sinPitch = Math.sin(pitch);
@@ -101,7 +102,13 @@ public class AutoAlignCommand extends Command {
         double sinYaw = shooterToTarget.getY() / deltaX;
 
         // i wish i could use energy conservation but that only deals with magnitudes
-        // velocityDirection will always have a length of 1
+
+        // velocityDirection will always have a magnitude of 1
+        // sqrt((cos(theta) * cos(phi))^2 + (sin(theta) * cos(phi))^2 + sin^2(phi))
+        // = sqrt((cos^2(theta) + sin^2(theta)) * cos^2(phi) + sin^2(phi))
+        // = sqrt(cos^2(phi) + sin^2(phi))
+        // = 1
+
         var velocityDirection = new Translation3d(cosYaw * cosPitch, sinYaw * cosPitch, sinPitch);
         var initialVelocityVector = velocityDirection.times(initialVelocity);
         var gravityVector = new Translation3d(0, 0, -g);
@@ -157,7 +164,7 @@ public class AutoAlignCommand extends Command {
             double shooterAngle = result.get().shooterAngle.getRadians();
             shooterAngle = MathUtil.clamp(shooterAngle, ShooterConstants.kMinPosition, ShooterConstants.kMaxPosition);
             
-            shooter.setGoal(shooterAngle);
+            shooter.setArmGoal(shooterAngle);
         }
     }
 
