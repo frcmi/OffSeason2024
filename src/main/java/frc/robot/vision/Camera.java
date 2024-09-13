@@ -4,13 +4,23 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
+/**
+ * Handle to a camera that observes the robot's environment
+ */
 public interface Camera {
+    /**
+     * Interface that allows camera to receive a simulated, rendered view
+     */
     public static interface Simulator {
         public void update(Pose2d estimatedPose);
 
         public void reset(Pose2d pose);
     }
 
+    /**
+     * Provides data that the backend of this camera gathered from the received
+     * image
+     */
     public static class Result {
         public Pose2d pose;
         public Translation2d translationToTarget;
@@ -39,11 +49,27 @@ public interface Camera {
         public final double fps;
     }
 
+    /**
+      * Retrieves result data from camera
+      * @param result Pass-by-reference result data
+      */
     public void updateResult(Result result);
 
+    /**
+      * Sets the reference pose for easier estimation
+      * @param pose The pose from odometry
+      */
     public void setReferencePose(Pose2d pose);
 
+    /**
+      * Retrieves the name of the camera
+      */
     public String getName();
 
+    /**
+      * Creates a simulation of this camera for easier testing
+      * @param spec Tuned data for rendered views
+      * @return The simulation handle
+      */
     public Simulator createSimulator(Specification spec);
 }

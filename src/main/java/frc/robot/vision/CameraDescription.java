@@ -8,6 +8,11 @@ public class CameraDescription {
         PHOTONVISION
     }
 
+    /**
+      * Describes a camera to connect to for position estimation
+      * @param name Name of the camera
+      * @param type Backend to use
+      */
     public CameraDescription(String name, CameraType type) {
         cameraName = name;
         cameraType = type;

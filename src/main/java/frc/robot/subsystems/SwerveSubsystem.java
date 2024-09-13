@@ -18,9 +18,9 @@ import frc.robot.RobotContainer;
 import frc.robot.Constants.SwerveConstants;
 
 /**
- * Swerve drivetrain using CTRE's swerve framework
- * Uses all Talon FX motor controllers
- */
+  * Swerve drivetrain using CTRE's swerve framework.
+  * Uses all Talon FX motor controllers
+  */
 public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
     private Notifier simNotifier = null;
     private double lastSimTime;

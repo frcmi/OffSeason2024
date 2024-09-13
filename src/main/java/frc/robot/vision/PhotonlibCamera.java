@@ -18,6 +18,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.Constants.VisionConstants;
 
 // thank you jack in the bot
+
+/**
+  * Camera implementation using PhotonVision
+  */
 public class PhotonlibCamera implements Camera {
     private static class PhotonlibSimulator implements Simulator {
         public PhotonlibSimulator(String name, Transform3d robotOffset, AprilTagFieldLayout layout, Specification spec, PhotonCamera camera) {

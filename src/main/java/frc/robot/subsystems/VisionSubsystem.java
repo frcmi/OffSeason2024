@@ -15,13 +15,13 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-/*
- * Uses camera video input to judge position from April Tags
- */
+/**
+  * Uses camera video input to judge position from April Tags
+  */
 public class VisionSubsystem extends SubsystemBase {
-    /*
-     * All data related to a camera on the bot
-     */
+    /**
+      * All data related to a camera on the bot
+      */
     private static class CameraData {
         public Camera camera; // actual camera handle
         public Camera.Result result; // retrieved vision data
