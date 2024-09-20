@@ -9,14 +9,18 @@ import java.util.Optional;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -40,14 +44,12 @@ public class RobotContainer {
   public static SendableChooser<Command> autoChooser;
   // The robot's subsystems and commands are defined here...
 
-  public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem(SwerveConstants.kDrivetrainConstants,
-      SwerveConstants.kFrontLeft, SwerveConstants.kFrontRight,
-      SwerveConstants.kBackLeft, SwerveConstants.kBackRight);
+  public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public static final CommandXboxController driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
-  public static final double kMaxVelocity = SwerveConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
+  public static final double kMaxVelocity = SwerveConstants.maxSpeed; // kSpeedAt12VoltsMps desired top speed
   public static final double kMaxAngularVelocity = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -89,22 +91,20 @@ public class RobotContainer {
     // and we want the robot to rotate counterclockwise when we flick the right
     // joystick left
 
+    // swerveSubsystem.setDefaultCommand(
+    //     swerveSubsystem.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * kMaxVelocity)
+    //         .withVelocityY(-driverController.getLeftX() * kMaxVelocity)
+    //         .withRotationalRate(-driverController.getRightX() * kMaxAngularVelocity)));
     swerveSubsystem.setDefaultCommand(
-        swerveSubsystem.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * kMaxVelocity)
-            .withVelocityY(-driverController.getLeftX() * kMaxVelocity)
-            .withRotationalRate(-driverController.getRightX() * kMaxAngularVelocity)));
-
-    driverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-    driverController.b().whileTrue(swerveSubsystem
-        .applyRequest(() -> point
-            .withModuleDirection(new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
-
-    // reset the field-centric heading on left bumper press
-    driverController.leftBumper().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.seedFieldRelative()));
-
-    if (Robot.isSimulation()) {
-      swerveSubsystem.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
-    }
+        new TeleopSwerve(
+            swerveSubsystem, 
+            () -> driverController.getLeftY() * swerveSubsystem.translationSensitivity, 
+            () -> driverController.getLeftX() * swerveSubsystem.translationSensitivity, 
+            () -> driverController.getRightX() * swerveSubsystem.rotationSensitivity, 
+            () -> false, //robotCentric.getAsBoolean()
+            () -> false
+        )
+    );
   }
 
   /**
