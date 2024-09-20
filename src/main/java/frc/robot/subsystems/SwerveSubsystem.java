@@ -60,15 +60,6 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic() {
-        // read current results from vision
-        var vision = RobotContainer.visionSubsystem;
-        var results = vision.getViableResults();
-    
-        for (int camera : results.keySet()) {
-            var result = results.get(camera);
-
-            // send measurement to CTRE swerve
-            addVisionMeasurement(result.pose, result.timestamp);
-        }
+        
     }
 }
