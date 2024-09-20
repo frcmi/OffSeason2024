@@ -10,6 +10,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
@@ -60,6 +61,9 @@ public class SwerveSubsystem extends SwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic() {
-        
+        for (int i = 0; i < super.ModuleCount; i++) {
+            SmartDashboard.putNumber("Module " + i, super.Modules[i].getPosition(false).angle.getRadians());
+            SmartDashboard.putNumber("Module Set " + i, super.Modules[i].getTargetState().angle.getRadians());
+        }
     }
 }

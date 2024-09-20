@@ -12,9 +12,6 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants.SteerFeedbackType;
 
 import edu.wpi.first.math.util.Units;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
@@ -93,8 +90,8 @@ public final class Constants {
     // the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     public static final Slot0Configs kSteerGains = new Slot0Configs()
-        .withKP(100).withKI(0).withKD(0.2)
-        .withKS(0).withKV(1.5).withKA(0);
+        .withKP(100).withKI(0).withKD(0)
+        .withKS(0).withKV(1.5).withKA(1);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     public static final Slot0Configs kDriveGains = new Slot0Configs()
@@ -164,7 +161,7 @@ public final class Constants {
     public static final int kFrontLeftDriveMotorId = 1;
     public static final int kFrontLeftSteerMotorId = 5;
     public static final int kFrontLeftEncoderId = 9;
-    public static final double kFrontLeftEncoderOffset = 0.49658203125;
+    public static final double kFrontLeftEncoderOffset = -3.683087871713425/(2 * Math.PI);
 
     public static final double kFrontLeftXPosInches = 11.375;
     public static final double kFrontLeftYPosInches = 11.44;
@@ -173,7 +170,7 @@ public final class Constants {
     public static final int kFrontRightDriveMotorId = 2;
     public static final int kFrontRightSteerMotorId = 6;
     public static final int kFrontRightEncoderId = 10;
-    public static final double kFrontRightEncoderOffset = 0.311767578125;
+    public static final double kFrontRightEncoderOffset = 0.177941771394734/(2 * Math.PI);
 
     public static final double kFrontRightXPosInches = 11.375;
     public static final double kFrontRightYPosInches = -11.44;
@@ -182,7 +179,7 @@ public final class Constants {
     public static final int kBackLeftDriveMotorId = 3;
     public static final int kBackLeftSteerMotorId = 7;
     public static final int kBackLeftEncoderId = 11;
-    public static final double kBackLeftEncoderOffset = -0.211669921875;
+    public static final double kBackLeftEncoderOffset = 0.111980597515652/(2 * Math.PI);
 
     public static final double kBackLeftXPosInches = -11.375;
     public static final double kBackLeftYPosInches = 11.44;
@@ -191,7 +188,7 @@ public final class Constants {
     public static final int kBackRightDriveMotorId = 4;
     public static final int kBackRightSteerMotorId = 8;
     public static final int kBackRightEncoderId = 12;
-    public static final double kBackRightEncoderOffset = 0.0732421875;
+    public static final double kBackRightEncoderOffset = 0.625864161457342/(2 * Math.PI);
 
     public static final double kBackRightXPosInches = -11.375;
     public static final double kBackRightYPosInches = -11.44;
@@ -227,12 +224,6 @@ public final class Constants {
     public static final double kMaxAcceleration = 1; // m/s^2
     public static final double kMaxAngularVelocity = 1; // rad/s
     public static final double kMaxAngularAcceleration = 0.5; // rad/s^2
-    public static final HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-        new PIDConstants(1, 0, 0), // translation pid
-        new PIDConstants(1, 0, 0), // rotation pid
-        kMaxVelocity, // max speed of module
-        0, // TODO: change to drive base radius
-        new ReplanningConfig());
   }
 
   public static class VisionConstants {

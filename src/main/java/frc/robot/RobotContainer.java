@@ -9,19 +9,10 @@ import java.util.Optional;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.commands.AutoAlignCommand;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -32,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -47,15 +39,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   public static SendableChooser<Command> autoChooser;
   // The robot's subsystems and commands are defined here...
-  public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
   public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem(SwerveConstants.kDrivetrainConstants,
       SwerveConstants.kFrontLeft, SwerveConstants.kFrontRight,
       SwerveConstants.kBackLeft, SwerveConstants.kBackRight);
-
-  public static final VisionSubsystem visionSubsystem = new VisionSubsystem();
-
-  public static final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public static final CommandXboxController driverController = new CommandXboxController(
@@ -73,9 +60,7 @@ public class RobotContainer {
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  public RobotContainer() {
-    configureAutoBuilder();
-    // Configure the trigger bindings
+  public RobotContainer() {    // Configure the trigger bindings
     configureBindings();
   }
 
@@ -120,45 +105,6 @@ public class RobotContainer {
     if (Robot.isSimulation()) {
       swerveSubsystem.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(exampleSubsystem));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
-    driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
-
-    driverController.leftTrigger().whileTrue(new AutoAlignCommand(shooterSubsystem, swerveSubsystem));
-  }
-
-  private void configureAutoBuilder() {
-    // TODO: all this needs to be filled in with methods from DT subsystem...
-    AutoBuilder.configureHolonomic(
-        () -> swerveSubsystem.getState().Pose,
-        pose -> swerveSubsystem.seedFieldRelative(pose),
-        () -> swerveSubsystem.getState().speeds,
-        speeds -> swerveSubsystem.setControl(new SwerveRequest.RobotCentric().withVelocityX(speeds.vxMetersPerSecond)
-            .withVelocityY(speeds.vyMetersPerSecond).withRotationalRate(speeds.omegaRadiansPerSecond)),
-        AutoConstants.pathFollowerConfig,
-        () -> {
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent())
-            return alliance.get() == Alliance.Red;
-
-          System.out.println("Could not obtain alliance from Driver Station!");
-          return false;
-        },
-        swerveSubsystem);
-
-    autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", autoChooser);
-
-    registerCommands();
-  }
-
-  private void registerCommands() {
-    NamedCommands.registerCommand("auto-align", new AutoAlignCommand(shooterSubsystem, swerveSubsystem));
   }
 
   /**
