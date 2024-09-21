@@ -275,6 +275,11 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         swerveDrivePoseEstimator.update(getGyroYaw(), getModulePositions());
+        for (int i = 0; i < 4; i++) {
+            SmartDashboard.putNumber("Motor Position " + i, mSwerveMods[i].getCANcoderReading().getRadians());
+            //SmartDashboard.putNumber("Voltage for Module" + i, mSwerveMods[i].);
+        }
+        
     }
 
     @Override
