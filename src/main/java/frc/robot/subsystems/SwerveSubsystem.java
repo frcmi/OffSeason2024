@@ -211,7 +211,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return the heading of the odometry
      */
     public Rotation2d getHeading() {
-        return getPose().getRotation();
+        return gyro.getRotation2d();
     }
 
     /**
@@ -276,8 +276,8 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic() {
         swerveDrivePoseEstimator.update(getGyroYaw(), getModulePositions());
         for (int i = 0; i < 4; i++) {
-            SmartDashboard.putNumber("Motor Position " + i, mSwerveMods[i].getCANcoderReading().getRadians());
-            //SmartDashboard.putNumber("Voltage for Module" + i, mSwerveMods[i].);
+            SmartDashboard.putNumber("Motor RPS " + i, mSwerveMods[i].mDriveMotor.getVelocity().getValueAsDouble());
+            SmartDashboard.putNumber("Voltage for Module" + i, mSwerveMods[i].mDriveMotor.getMotorVoltage().getValueAsDouble());
         }
         
     }
@@ -286,4 +286,10 @@ public class SwerveSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         swerveDriveOdometrySim.update(getGyroYaw(), getModulePositions());
     }
+
+    public void resetYaw() {
+        gyro.setYaw(0);
+    }
+
+   
 }

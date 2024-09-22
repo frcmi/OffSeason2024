@@ -14,6 +14,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
@@ -45,6 +46,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+  public static final TalonFX Yippie = new TalonFX(4);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public static final CommandXboxController driverController = new CommandXboxController(
@@ -64,6 +66,19 @@ public class RobotContainer {
    */
   public RobotContainer() {    // Configure the trigger bindings
     configureBindings();
+    autoChooser = new SendableChooser<>();
+    autoChooser.addOption("No Auto", Commands.print("no auto"));
+    autoChooser.addOption("Drive Forwards", new TeleopSwerve(
+            swerveSubsystem, 
+            () -> -1, 
+            () -> 0, 
+            () -> 0, 
+            () -> false,
+            () -> false
+        )
+      .withTimeout(2)
+    );
+    SmartDashboard.putData("Auto", autoChooser);
   }
 
   /**
@@ -95,16 +110,31 @@ public class RobotContainer {
     //     swerveSubsystem.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * kMaxVelocity)
     //         .withVelocityY(-driverController.getLeftX() * kMaxVelocity)
     //         .withRotationalRate(-driverController.getRightX() * kMaxAngularVelocity)));
+
+    // swerveSubsystem.setDefaultCommand(
+    //     new TeleopSwerve(
+    //         swerveSubsystem, 
+    //         () -> driverController.getLeftY() * swerveSubsystem.translationSensitivity, 
+    //         () -> driverController.getLeftX() * swerveSubsystem.translationSensitivity, 
+    //         () -> driverController.getRightX() * swerveSubsystem.rotationSensitivity, 
+    //         () -> false, //robotCentric.getAsBoolean()
+    //         () -> false
+    //     )
+    // );
     swerveSubsystem.setDefaultCommand(
         new TeleopSwerve(
             swerveSubsystem, 
             () -> driverController.getLeftY() * swerveSubsystem.translationSensitivity, 
             () -> driverController.getLeftX() * swerveSubsystem.translationSensitivity, 
             () -> driverController.getRightX() * swerveSubsystem.rotationSensitivity, 
-            () -> false, //robotCentric.getAsBoolean()
+            () -> false,
             () -> false
         )
     );
+    driverController.y().onTrue(Commands.run(() -> swerveSubsystem.resetYaw()));
+
+    driverController.povRight().onTrue(Commands.run(() -> Yippie.setVoltage(14)));
+    driverController.povDown().onTrue(Commands.run(() -> Yippie.setVoltage(0)));
   }
 
   /**
@@ -116,4 +146,5 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return autoChooser.getSelected();
   }
+
 }
