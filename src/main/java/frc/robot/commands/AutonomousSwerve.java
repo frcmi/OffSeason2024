@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 /**
  * Command that drives the robot with controller inputs
  */
-public class TeleopSwerve extends Command {    
+public class AutonomousSwerve extends Command {    
     private SwerveSubsystem s_Swerve;    
     private DoubleSupplier translationSup;
     private DoubleSupplier strafeSup;
@@ -29,7 +29,7 @@ public class TeleopSwerve extends Command {
     private SlewRateLimiter strafeLimit = null;
     private final BooleanSupplier slewEnableSupplier;
 
-    public TeleopSwerve(SwerveSubsystem s_Swerve, DoubleSupplier translationSup, DoubleSupplier strafeSup, DoubleSupplier rotationSup, BooleanSupplier robotCentricSup, BooleanSupplier slewEnableSupplier) {
+    public AutonomousSwerve(SwerveSubsystem s_Swerve, DoubleSupplier translationSup, DoubleSupplier strafeSup, DoubleSupplier rotationSup, BooleanSupplier robotCentricSup, BooleanSupplier slewEnableSupplier) {
         this.slewEnableSupplier = slewEnableSupplier;
         this.s_Swerve = s_Swerve;
         addRequirements(s_Swerve);
@@ -45,9 +45,9 @@ public class TeleopSwerve extends Command {
         boolean slewEnabled = slewEnableSupplier.getAsBoolean();
         int pow = slewEnabled ? 1 : 3;
         /* Get Values, Deadband*/
-        double translationVal = MathUtil.applyDeadband(Math.pow(translationSup.getAsDouble(), pow), Constants.OperatorConstants.stickDeadband);
-        double strafeVal = MathUtil.applyDeadband(Math.pow(strafeSup.getAsDouble(), pow), Constants.OperatorConstants.stickDeadband);
-        double rotationVal = MathUtil.applyDeadband(Math.pow(rotationSup.getAsDouble(), pow), Constants.OperatorConstants.stickDeadband);
+        double translationVal = translationSup.getAsDouble(); //MathUtil.applyDeadband(Math.pow(translationSup.getAsDouble(), pow), Constants.OperatorConstants.stickDeadband);
+        double strafeVal = strafeSup.getAsDouble(); //MathUtil.applyDeadband(Math.pow(strafeSup.getAsDouble(), pow), Constants.OperatorConstants.stickDeadband);
+        double rotationVal = rotationSup.getAsDouble(); //MathUtil.applyDeadband(Math.pow(rotationSup.getAsDouble(), pow), Constants.OperatorConstants.stickDeadband);
         
         if (slewEnabled) {
             if (strafeLimit == null) {
@@ -72,8 +72,8 @@ public class TeleopSwerve extends Command {
 
         /* Drive */
         s_Swerve.drive(
-            new Translation2d(translationVal, strafeVal).times(Constants.SwerveConstants.maxSpeed),
-            rotationVal * (Constants.SwerveConstants.maxAngularVelocity),
+            new Translation2d(translationVal, strafeVal),
+            rotationVal,
             !robotCentricSup.getAsBoolean(),
             false
         );

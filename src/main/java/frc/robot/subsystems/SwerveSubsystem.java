@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -21,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -56,6 +58,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         Constants.SwerveConstants.Mod2.isInverted),
                 new SwerveModule(3, Constants.SwerveConstants.Mod3.constants, Constants.SwerveConstants.Mod3.isInverted)
         };
+
 
         Pose2d centerField = new Pose2d(11.2775, 4.5675, new Rotation2d(0));
         Pose2d speakerStart = new Pose2d(15.27, 5.55, new Rotation2d(Math.toRadians(-180)));
@@ -186,6 +189,10 @@ public class SwerveSubsystem extends SubsystemBase {
         return swerveDrivePoseEstimator.getEstimatedPosition();
     }
 
+    public void resetPose(Pose2d newPose) {
+        swerveDrivePoseEstimator.resetPosition(getGyroYaw(), getModulePositions(), newPose);
+    }
+
     /**
      * Sets the pose of the odometry to be a certain position
      * 
@@ -272,9 +279,15 @@ public class SwerveSubsystem extends SubsystemBase {
         rotationSensitivity = sensitivitySwitch ? SwerveConstants.rotationSensitivity : 1;
     }
 
+    StructPublisher<Pose2d> poseEsimatorPosition = NetworkTableInstance.getDefault()
+        .getStructTopic("Pose Estimator", Pose2d.struct).publish();
+
     @Override
     public void periodic() {
         swerveDrivePoseEstimator.update(getGyroYaw(), getModulePositions());
+
+        poseEsimatorPosition.set(getPose());
+
         for (int i = 0; i < 4; i++) {
             SmartDashboard.putNumber("Motor RPS " + i, mSwerveMods[i].mDriveMotor.getVelocity().getValueAsDouble());
             SmartDashboard.putNumber("Voltage for Module" + i, mSwerveMods[i].mDriveMotor.getMotorVoltage().getValueAsDouble());

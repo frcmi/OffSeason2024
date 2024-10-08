@@ -9,6 +9,7 @@ import java.util.Optional;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.commands.AutonomousSwerve;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -17,6 +18,7 @@ import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -46,7 +48,10 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
   public static final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-  public static final TalonFX Yippie = new TalonFX(4);
+  public static final TalonFX Yippie0 = new TalonFX(1);
+    public static final TalonFX Yippie1 = new TalonFX(2);
+      public static final TalonFX Yippie2 = new TalonFX(4);
+        public static final TalonFX Yippie3 = new TalonFX(5);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public static final CommandXboxController driverController = new CommandXboxController(
@@ -60,7 +65,7 @@ public class RobotContainer {
                                                                // driving in open loop
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-
+  double startXPosition = 0;
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -68,16 +73,27 @@ public class RobotContainer {
     configureBindings();
     autoChooser = new SendableChooser<>();
     autoChooser.addOption("No Auto", Commands.print("no auto"));
-    autoChooser.addOption("Drive Forwards", new TeleopSwerve(
+    autoChooser.addOption("Drive Forwards (DR)", new AutonomousSwerve(
             swerveSubsystem, 
-            () -> -1, 
+            () -> -0.2,
             () -> 0, 
             () -> 0, 
             () -> false,
             () -> false
         )
-      .withTimeout(2)
+      .withTimeout(0.5)
     );
+    autoChooser.addOption("Drive Forwards (Distance)", new AutonomousSwerve(
+        swerveSubsystem, 
+        () -> 0.2, 
+        () -> 0, 
+        () -> 0, 
+        () -> false, 
+        () -> false
+      )
+      .until(() -> swerveSubsystem.getPose().getX() > startXPosition + 1)
+    );
+    autoChooser.addOption("Drive Forwards (Pathplanner)", AutoBuilder.buildAuto("Go Forwards"));
     SmartDashboard.putData("Auto", autoChooser);
   }
 
@@ -133,8 +149,7 @@ public class RobotContainer {
     );
     driverController.y().onTrue(Commands.run(() -> swerveSubsystem.resetYaw()));
 
-    driverController.povRight().onTrue(Commands.run(() -> Yippie.setVoltage(14)));
-    driverController.povDown().onTrue(Commands.run(() -> Yippie.setVoltage(0)));
+
   }
 
   /**
@@ -143,6 +158,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    startXPosition = swerveSubsystem.getPose().getX();
+    SmartDashboard.putNumber("postiinn", startXPosition + 1);
     // An example command will be run in autonomous
     return autoChooser.getSelected();
   }

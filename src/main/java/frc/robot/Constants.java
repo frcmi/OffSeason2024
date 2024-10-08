@@ -46,6 +46,7 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final double stickDeadband = 0.1;
+    public static final double SupplyCurrentLimit = 15;
   }
 
   public final class ShooterConstants {
@@ -124,7 +125,8 @@ public final class Constants {
     /* Angle Encoder Invert */
     public static final SensorDirectionValue cancoderInvert = chosenModule.cancoderInvert;
 
-    public static final float currentLimitModifier = 0.1f;
+    /*  */
+    public static final float currentLimitModifier = 0.75f;
 
     /* Swerve Current Limiting */
     public static final int angleCurrentLimit = (int)(25 * currentLimitModifier);
@@ -132,8 +134,8 @@ public final class Constants {
     public static final double angleCurrentThresholdTime = 0.1;
     public static final boolean angleEnableCurrentLimit = true;
 
-    public static final int driveCurrentLimit = (int)(35 * currentLimitModifier);
-    public static final int driveCurrentThreshold = (int)(60 * currentLimitModifier);
+    public static final int driveCurrentLimit = (int)(25 * currentLimitModifier);
+    public static final int driveCurrentThreshold = (int)(40 * currentLimitModifier);
     public static final double driveCurrentThresholdTime = 0.1;
     public static final boolean driveEnableCurrentLimit = true;
 
@@ -163,12 +165,12 @@ public final class Constants {
 
     /* Swerve Profiling Values */
     /** I think it is m/s, def not volts */
-    public static final double maxSpeed = 13;
+    public static final double maxSpeed = 20.0;
     /** no idea what unit */
     public static final double maxAngularVelocity = 12;
 
     /* Sensitivity Values */
-    public static final double translationSensitivity = 0.75;
+    public static final double translationSensitivity = 0.1;
     public static final double rotationSensitivity = 0.5;
 
     /* Neutral Modes */
